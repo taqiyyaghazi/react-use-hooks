@@ -10,10 +10,11 @@
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "lint": "eslint \"{**/*,*}.{js,ts,jsx,tsx}\"",
-    "prepare": "npm run build",
+    "prepare": "npm run build && husky install",
     "prepublishOnly": "npm test && npm run prettier && npm run lint",
     "prettier": "prettier --write \"{src,tests,example/src}/**/*.{js,ts,jsx,tsx}\"",
-    "test": "jest --config jestconfig.json"
+    "test": "jest --config jestconfig.json",
+    "commitlint": "commitlint --edit"
   },
   "keywords": [
     "react",
@@ -23,6 +24,8 @@
   "author": "Ghazi Taqiyya Al Anshari <taqiyyaghazi@gmail.com> (https://taqiyyaghazi.com)",
   "license": "MIT",
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "@testing-library/react": "^14.1.2",
     "@types/jest": "^29.5.10",
     "@types/react": "^18.2.41",
@@ -33,6 +36,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.3",
     "jest": "^29.7.0",
     "jest-canvas-mock": "^2.5.2",
     "jest-environment-jsdom": "^29.7.0",
