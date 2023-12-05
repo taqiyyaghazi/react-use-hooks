@@ -8,4 +8,9 @@
 // style: development changes - pure styling changes
 // test: development changes - affecting any tests
 
+// commit conventions
+// type(scope?): subject
+// body?
+// footer?
+
 module.exports = { extends: ['@commitlint/config-conventional'] }
