@@ -1,3 +1,3 @@
-import MyCounter from './components/App'
+import { useClipboard } from './hooks/useClipboard'
 
-export { MyCounter }
+export { useClipboard }
