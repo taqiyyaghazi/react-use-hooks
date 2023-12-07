@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react-hooks'
 import { useClipboard, UseClipboardOptions } from '../src/hooks/useClipboard'
 
 describe('useClipboard', () => {
-  // Mock navigator.clipboard API
   beforeAll(() => {
     Object.assign(navigator, {
       clipboard: {
@@ -15,13 +14,14 @@ describe('useClipboard', () => {
     })
   })
 
-  // Clean up mocks
   afterAll(() => {
     jest.restoreAllMocks()
   })
 
-  it('should initialize with the correct state', () => {
-    const { result } = renderHook(() => useClipboard())
+  it('should initialize with the correct state', async () => {
+    const { result, waitForNextUpdate } = renderHook(() => useClipboard())
+
+    await act(async () => await waitForNextUpdate())
 
     expect(result.current.isSupported).toBe(true)
     expect(result.current.text).toBe('')
@@ -59,7 +59,7 @@ describe('useClipboard', () => {
     const options: UseClipboardOptions = { read: true }
     const { result, waitForNextUpdate } = renderHook(() => useClipboard(options))
 
-    await waitForNextUpdate()
+    await act(async () => await waitForNextUpdate())
 
     expect(result.current.text).toBe('')
   })
