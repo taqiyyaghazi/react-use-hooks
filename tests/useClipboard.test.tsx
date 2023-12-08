@@ -1,5 +1,5 @@
-import { renderHook, act } from '@testing-library/react-hooks'
-import { useClipboard, UseClipboardOptions } from '../src/hooks/useClipboard'
+import { act, renderHook, waitFor } from '@testing-library/react'
+import { UseClipboardOptions, useClipboard } from '../src/hooks/useClipboard'
 
 describe('useClipboard', () => {
   beforeAll(() => {
@@ -19,25 +19,24 @@ describe('useClipboard', () => {
   })
 
   it('should initialize with the correct state', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useClipboard())
+    const { result } = renderHook(() => useClipboard())
 
-    await act(async () => await waitForNextUpdate())
-
-    expect(result.current.isSupported).toBe(true)
-    expect(result.current.text).toBe('')
-    expect(result.current.copied).toBe(false)
+    await waitFor(() => {
+      expect(result.current.isSupported).toBe(true)
+      expect(result.current.text).toBe('')
+      expect(result.current.copied).toBe(false)
+    })
   })
 
   it('should update text when copy is called', async () => {
     const options: UseClipboardOptions = { read: true }
-    const { result, waitForNextUpdate } = renderHook(() => useClipboard(options))
+    const { result } = renderHook(() => useClipboard(options))
 
     await act(async () => {
       await result.current.copy('NewClipboardText')
-      await waitForNextUpdate({ timeout: 1000 })
     })
 
-    expect(result.current.text).toBe('NewClipboardText')
+    await waitFor(() => expect(result.current.text).toBe('NewClipboardText'))
   })
 
   it('should not copy text if clipboard API is not supported', async () => {
@@ -48,8 +47,10 @@ describe('useClipboard', () => {
       await result.current.copy('NewClipboardText')
     })
 
-    expect(result.current.text).toBe('')
-    expect(result.current.copied).toBe(false)
+    await waitFor(() => {
+      expect(result.current.text).toBe('')
+      expect(result.current.copied).toBe(false)
+    })
   })
 
   it('should not read text if read permission is denied', async () => {
@@ -57,10 +58,8 @@ describe('useClipboard', () => {
       query: jest.fn().mockImplementation(() => Promise.resolve({ state: 'denied' })),
     })
     const options: UseClipboardOptions = { read: true }
-    const { result, waitForNextUpdate } = renderHook(() => useClipboard(options))
+    const { result } = renderHook(() => useClipboard(options))
 
-    await act(async () => await waitForNextUpdate())
-
-    expect(result.current.text).toBe('')
+    await waitFor(() => expect(result.current.text).toBe(''))
   })
 })
