@@ -1,4 +1,3 @@
-import { useClipboard } from './hooks/useClipboard'
-import { useColorMode } from './hooks/useColorMode'
+import { useClipboard, useColorMode, useWindowScroll } from './hooks'
 
-export { useClipboard, useColorMode }
+export { useClipboard, useColorMode, useWindowScroll }
