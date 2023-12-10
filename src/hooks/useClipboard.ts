@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSupported } from './useSupported'
+import { usePermission } from './usePermission'
 
 export interface UseClipboardOptions {
   read?: boolean
-  copiedDuring?: number
   legacy?: boolean
+  copiedDuring?: number
 }
 
 export interface UseClipboardReturn {
@@ -15,32 +17,18 @@ export interface UseClipboardReturn {
 }
 
 export function useClipboard(options: UseClipboardOptions = {}): UseClipboardReturn {
-  const { read = false, copiedDuring = 1000, legacy = false } = options
+  const { read = false, legacy = false, copiedDuring = 1000 } = options
 
-  const [isClipboardApiSupported, setIsClipboardApiSupported] = useState<boolean>(false)
-  const [permissionRead, setPermissionRead] = useState<PermissionState>('granted')
-  const [permissionWrite, setPermissionWrite] = useState<PermissionState>('granted')
-  const [isSupported, setIsSupported] = useState<boolean>(false)
+  const isClipboardApiSupported = useSupported(() => navigator && 'clipboard' in navigator)
+  const permissionRead = usePermission('clipboard-read' as PermissionName)
+  const permissionWrite = usePermission('clipboard-write' as PermissionName)
+  const isSupported = useMemo(() => isClipboardApiSupported || legacy, [isClipboardApiSupported, legacy])
   const [text, setText] = useState<string>('')
   const [copied, setCopied] = useState<boolean>(false)
   const timeoutRef = useRef<number | null>(null)
 
-  useEffect(() => {
-    setIsClipboardApiSupported(!!navigator?.clipboard)
-
-    navigator?.permissions.query({ name: 'clipboard-read' as PermissionName }).then((result) => {
-      setPermissionRead(result.state)
-    })
-
-    navigator?.permissions.query({ name: 'clipboard-write' as PermissionName }).then((result) => {
-      setPermissionWrite(result.state)
-    })
-
-    setIsSupported(!!navigator?.clipboard || legacy)
-  }, [legacy])
-
   const updateText = () => {
-    if (isClipboardApiSupported && permissionRead !== 'denied') {
+    if (isClipboardApiSupported && permissionRead.state !== 'denied') {
       navigator?.clipboard.readText().then((value) => {
         setText(value)
       })
@@ -65,7 +53,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
   const copy = async (value?: string) => {
     if (isSupported && value != null) {
-      if (isClipboardApiSupported && permissionWrite !== 'denied') {
+      if (isClipboardApiSupported && permissionWrite.state !== 'denied') {
         await navigator?.clipboard.writeText(value)
       } else {
         legacyCopy(value)
